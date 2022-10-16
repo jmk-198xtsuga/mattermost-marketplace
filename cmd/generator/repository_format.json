@@ -1,0 +1,13 @@
+{
+    "id": %d,
+    "name": "%s",
+    "full_name": "%s",
+    "owner": {
+      "login": "%s",
+      "id": %d
+    },
+    "organization": {
+      "login": "%s",
+      "id": %d
+    }
+} 
