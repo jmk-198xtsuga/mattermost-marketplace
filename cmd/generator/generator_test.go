@@ -144,7 +144,8 @@ func makeHandleReleaseList(t *testing.T) func(http.ResponseWriter, *http.Request
 	}
 }
 
-func _TestGitHubRepositoryGet(t *testing.T) {
+func MockGitHubRepositoryGet(t *testing.T) *github.Repository {
+	var repository *github.Repository = nil
 	server := httptest.NewServer(http.HandlerFunc(makeHandleRepositoryGet(t)))
 	defer server.Close()
 
@@ -155,23 +156,31 @@ func _TestGitHubRepositoryGet(t *testing.T) {
 	got, resp, err := client.Repositories.Get(ctx, "mattermost", "mattermost-plugin-github")
 
 	if err != nil {
-		t.Errorf("Repositiories.Get returned error: %v", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Repositories.Get did not get an OK HTTP response")
-	}
-
-	if got == nil {
-		t.Errorf("Repositories.Get returned nil")
+		if t != nil {
+			t.Errorf("Repositiories.Get returned error: %v", err)
+		}
+	} else if resp.StatusCode != http.StatusOK {
+		if t != nil {
+			t.Errorf("Repositories.Get did not get an OK HTTP response")
+		}
+	} else if got == nil {
+		if t != nil {
+			t.Errorf("Repositories.Get returned nil")
+		}
 	} else {
 		if (*got.Owner.Login != "mattermost") || (*got.Name != "mattermost-plugin-github") {
-			t.Errorf("Repository mock response failed")
+			if t != nil {
+				t.Errorf("Repository mock response failed")
+			}
+		} else {
+			repository = got
 		}
 	}
+	return repository
 }
 
-func _TestGitHubRepositoryList(t *testing.T) {
+func MockGitHubRepositoryList(t *testing.T) []*github.Repository {
+	var repositories []*github.Repository = nil
 	server := httptest.NewServer(http.HandlerFunc(makeHandleRepositoryList(t)))
 	defer server.Close()
 
@@ -182,25 +191,35 @@ func _TestGitHubRepositoryList(t *testing.T) {
 	got, resp, err := client.Repositories.List(ctx, "mattermost", nil)
 
 	if err != nil {
-		t.Errorf("Repositiories.List returned error: %v", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Repositories.List did not get an OK HTTP response")
-	}
-
-	if got == nil {
-		t.Errorf("Repositories.List returned nil")
+		if t != nil {
+			t.Errorf("Repositiories.List returned error: %v", err)
+		}
+	} else if resp.StatusCode != http.StatusOK {
+		if t != nil {
+			t.Errorf("Repositories.List did not get an OK HTTP response")
+		}
+	} else if got == nil {
+		if t != nil {
+			t.Errorf("Repositories.List returned nil")
+		}
 	} else {
 		if len(got) == 0 {
-			t.Errorf("Repository list mock response failed")
+			if t != nil {
+				t.Errorf("Repository list mock response failed")
+			}
 		} else if *got[0].Owner.Login != "mattermost" {
-			t.Errorf("Repository list mock response failed")
+			if t != nil {
+				t.Errorf("Repository list mock response failed")
+			}
+		} else {
+			repositories = got
 		}
 	}
+	return repositories
 }
 
-func _TestGitHubReleaseList(t *testing.T) {
+func MockGitHubReleaseList(t *testing.T) []*github.RepositoryRelease {
+	var releases []*github.RepositoryRelease = nil
 	server := httptest.NewServer(http.HandlerFunc(makeHandleReleaseList(t)))
 	defer server.Close()
 
@@ -211,28 +230,39 @@ func _TestGitHubReleaseList(t *testing.T) {
 	got, resp, err := client.Repositories.ListReleases(ctx, "mattermost", "mattermost-plugin-github", nil)
 
 	if err != nil {
-		t.Errorf("Repositiories.ListReleases returned error: %v", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("Repositories.ListReleases did not get an OK HTTP response")
-	}
-
-	if got == nil {
-		t.Errorf("Repositories.ListReleases returned nil")
+		if t != nil {
+			t.Errorf("Repositiories.ListReleases returned error: %v", err)
+		}
+	} else if resp.StatusCode != http.StatusOK {
+		if t != nil {
+			t.Errorf("Repositories.ListReleases did not get an OK HTTP response")
+		}
+	} else if got == nil {
+		if t != nil {
+			t.Errorf("Repositories.ListReleases returned nil")
+		}
 	} else {
 		if len(got) == 0 {
-			t.Errorf("Release list mock response failed")
+			if t != nil {
+				t.Errorf("Release list mock response failed")
+			}
 		} else if *got[len(got)-1].Name != "stable" {
-			t.Errorf("Release list mock response failed")
+			if t != nil {
+				t.Errorf("Release list mock response failed")
+			}
 		} else if *got[len(got)-1].TagName != "v1.0.0" {
-			t.Errorf("Release list mock response failed")
+			if t != nil {
+				t.Errorf("Release list mock response failed")
+			}
+		} else {
+			releases = got
 		}
 	}
+	return releases
 }
 
 func TestGitHubMockGeneration(t *testing.T) {
-	_TestGitHubRepositoryGet(t)
-	_TestGitHubRepositoryList(t)
-	_TestGitHubReleaseList(t)
+	MockGitHubRepositoryGet(t)
+	MockGitHubRepositoryList(t)
+	MockGitHubReleaseList(t)
 }
