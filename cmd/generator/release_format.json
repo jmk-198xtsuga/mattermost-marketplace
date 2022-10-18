@@ -1,0 +1,9 @@
+{
+    "id": %d,
+    "name": "%s",
+    "tag_name": "%s",
+    "author": {
+      "login": "%s",
+      "id": %d
+    }
+}
