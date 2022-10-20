@@ -1,4 +1,4 @@
-package main
+package repository
 
 import (
 	"context"
@@ -259,10 +259,4 @@ func MockGitHubReleaseList(t *testing.T) []*github.RepositoryRelease {
 		}
 	}
 	return releases
-}
-
-func TestGitHubMockGeneration(t *testing.T) {
-	MockGitHubRepositoryGet(t)
-	MockGitHubRepositoryList(t)
-	MockGitHubReleaseList(t)
 }
