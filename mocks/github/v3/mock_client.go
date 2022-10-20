@@ -144,7 +144,7 @@ func makeHandleReleaseList(t *testing.T) func(http.ResponseWriter, *http.Request
 	}
 }
 
-func MockGitHubRepositoryGet(t *testing.T) *github.Repository {
+func MockGitHubClientRepositoryGet(t *testing.T) *github.Repository {
 	var repository *github.Repository = nil
 	server := httptest.NewServer(http.HandlerFunc(makeHandleRepositoryGet(t)))
 	defer server.Close()
@@ -179,7 +179,23 @@ func MockGitHubRepositoryGet(t *testing.T) *github.Repository {
 	return repository
 }
 
-func MockGitHubRepositoryList(t *testing.T) []*github.Repository {
+func MockGitHubRepository(owner string, repo string) *github.Repository {
+	var repository *github.Repository = new(github.Repository)
+	repository.ID = new(int64)
+	*repository.ID = 1
+	repository.Name = new(string)
+	*repository.Name = repo
+	repository.FullName = new(string)
+	*repository.FullName = strings.Join([]string{owner, repo}, "/")
+	repository.Owner = new(github.User)
+	repository.Owner.ID = new(int64)
+	*repository.Owner.ID = 1
+	repository.Owner.Login = new(string)
+	*repository.Owner.Login = owner
+	return repository
+}
+
+func MockGitHubClientRepositoryList(t *testing.T) []*github.Repository {
 	var repositories []*github.Repository = nil
 	server := httptest.NewServer(http.HandlerFunc(makeHandleRepositoryList(t)))
 	defer server.Close()
@@ -218,7 +234,17 @@ func MockGitHubRepositoryList(t *testing.T) []*github.Repository {
 	return repositories
 }
 
-func MockGitHubReleaseList(t *testing.T) []*github.RepositoryRelease {
+func MockGitHubRepositoryList(owner string, repos []string) []*github.Repository {
+	var repositories []*github.Repository
+	for i, r := range repos {
+		var repo *github.Repository = MockGitHubRepository(owner, r)
+		*repo.ID = int64(i + 1)
+		repositories = append(repositories, repo)
+	}
+	return repositories
+}
+
+func MockGitHubClientReleaseList(t *testing.T) []*github.RepositoryRelease {
 	var releases []*github.RepositoryRelease = nil
 	server := httptest.NewServer(http.HandlerFunc(makeHandleReleaseList(t)))
 	defer server.Close()
@@ -257,6 +283,26 @@ func MockGitHubReleaseList(t *testing.T) []*github.RepositoryRelease {
 		} else {
 			releases = got
 		}
+	}
+	return releases
+}
+
+func MockGitHubReleaseList(owner string, repo string, tags []string) []*github.RepositoryRelease {
+	var releases []*github.RepositoryRelease
+	for i, t := range tags {
+		var release *github.RepositoryRelease = new(github.RepositoryRelease)
+		release.ID = new(int64)
+		*release.ID = int64(i + 1)
+		release.Name = new(string)
+		*release.Name = t
+		release.TagName = new(string)
+		*release.TagName = t
+		release.Author = new(github.User)
+		release.Author.ID = new(int64)
+		*release.Author.ID = 1
+		release.Author.Login = new(string)
+		*release.Author.Login = owner
+		releases = append(releases, release)
 	}
 	return releases
 }
